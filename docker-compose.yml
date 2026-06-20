@@ -1,52 +1,98 @@
 services:
-  postgres:
+  keycloak-db:
     image: postgres:16
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: keycloak_db
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
     ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      - "5433:5432"
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+
+  app-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: app_db
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5434:5432"
+    volumes:
+      - app_db_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./infra/postgres/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+
+  openfga-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: openfga_db
+      POSTGRES_USER: openfga
+      POSTGRES_PASSWORD: openfga
+    ports:
+      - "5435:5432"
+    volumes:
+      - openfga_db_data:/var/lib/postgresql/data
 
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.6
-    command: ["start-dev"]
+    command: ["start-dev", "--import-realm"]
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_URL_DATABASE: keycloak_db
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_HTTP_PORT: 8080
+    volumes:
+      - ./infra/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     ports:
       - "8081:8080"
     depends_on:
-      - postgres
+      - keycloak-db
 
   openfga:
     image: openfga/openfga:latest
     command: ["run"]
+    environment:
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://openfga:openfga@openfga-db:5432/openfga_db?sslmode=disable
+      OPENFGA_HTTP_ADDR: 0.0.0.0:8080
     ports:
       - "8082:8080"
     depends_on:
-      - postgres
+      - openfga-db
 
   backend:
     build:
       context: ./backend
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://app-db:5432/app_db
+      SPRING_DATASOURCE_USERNAME: app
+      SPRING_DATASOURCE_PASSWORD: app
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/saas-platform
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      - app-db
       - keycloak
       - openfga
 
   frontend:
     build:
       context: ./frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+      VITE_KEYCLOAK_URL: http://localhost:8081
     ports:
       - "3000:3000"
     depends_on:
       - backend
+
+volumes:
+  keycloak_db_data:
+  app_db_data:
+  openfga_db_data:
