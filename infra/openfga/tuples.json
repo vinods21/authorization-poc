@@ -1,0 +1,29 @@
+[
+  { "user": "user:admin-a", "relation": "admin", "object": "tenant:school-a" },
+  { "user": "user:teacher-a", "relation": "teacher", "object": "tenant:school-a" },
+  { "user": "user:teacher-a", "relation": "member", "object": "tenant:school-a" },
+  { "user": "user:student-a", "relation": "member", "object": "tenant:school-a" },
+  { "user": "user:parent-a", "relation": "member", "object": "tenant:school-a" },
+
+  { "user": "user:teacher-b", "relation": "teacher", "object": "tenant:school-b" },
+  { "user": "user:teacher-b", "relation": "member", "object": "tenant:school-b" },
+
+  { "user": "user:teacher-a", "relation": "owner", "object": "class:school-a/class-10a" },
+  { "user": "user:teacher-a", "relation": "teacher", "object": "class:school-a/class-10a" },
+  { "user": "user:student-a", "relation": "student", "object": "class:school-a/class-10a" },
+  { "user": "tenant:school-a", "relation": "tenant", "object": "class:school-a/class-10a" },
+
+  { "user": "user:teacher-b", "relation": "teacher", "object": "class:school-b/class-10b" },
+  { "user": "tenant:school-b", "relation": "tenant", "object": "class:school-b/class-10b" },
+
+  { "user": "tenant:school-a", "relation": "tenant", "object": "student_profile:school-a/student-a" },
+  { "user": "class:school-a/class-10a", "relation": "class", "object": "student_profile:school-a/student-a" },
+  { "user": "user:student-a", "relation": "owner", "object": "student_profile:school-a/student-a" },
+  { "user": "user:parent-a", "relation": "parent", "object": "student_profile:school-a/student-a" },
+
+  { "user": "class:school-a/class-10a", "relation": "class", "object": "assignment:school-a/assignment-1" },
+  { "user": "user:teacher-a", "relation": "creator", "object": "assignment:school-a/assignment-1" },
+
+  { "user": "student_profile:school-a/student-a", "relation": "student", "object": "report:school-a/report-1" }
+]
+

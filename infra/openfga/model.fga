@@ -1,0 +1,46 @@
+model
+  schema 1.1
+
+type user
+
+type tenant
+  relations
+    define admin: [user]
+    define member: [user]
+    define teacher: [user]
+    define student: [user]
+    define can_manage: admin
+    define can_view: admin or member
+
+type class
+  relations
+    define tenant: [tenant]
+    define owner: [user]
+    define teacher: [user]
+    define student: [user]
+    define can_view: owner or teacher or student or admin from tenant
+    define can_manage: owner or admin from tenant
+    define can_create_assignment: teacher or admin from tenant
+
+type assignment
+  relations
+    define class: [class]
+    define creator: [user]
+    define can_view: can_view from class
+    define can_update: creator or can_manage from class
+    define can_delete: can_manage from class
+
+type student_profile
+  relations
+    define tenant: [tenant]
+    define class: [class]
+    define owner: [user]
+    define parent: [user]
+    define can_view: owner or parent or teacher from class or admin from tenant
+    define can_update: teacher from class or admin from tenant
+
+type report
+  relations
+    define student: [student_profile]
+    define can_view: can_view from student
+
