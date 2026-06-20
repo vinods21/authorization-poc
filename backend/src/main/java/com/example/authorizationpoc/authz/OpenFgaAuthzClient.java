@@ -62,4 +62,33 @@ public class OpenFgaAuthzClient implements AuthzClient {
             );
         }
     }
+
+    @Override
+    public void writeTuple(String user, String relation, String object) {
+        try {
+            Map<String, Object> payload = Map.of(
+                    "writes", Map.of(
+                            "tuple_keys", new Object[] {
+                                    Map.of(
+                                            "user", "user:" + user,
+                                            "relation", relation,
+                                            "object", object
+                                    )
+                            }
+                    )
+            );
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(properties.apiUrl() + "/stores/" + properties.storeId() + "/write"))
+                    .timeout(Duration.ofSeconds(10))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 400) {
+                throw new IllegalStateException("Failed to write OpenFGA tuple: " + response.body());
+            }
+        } catch (Exception ex) {
+            throw new IllegalStateException("Failed to write OpenFGA tuple", ex);
+        }
+    }
 }

@@ -32,4 +32,9 @@ public class SchoolClassController {
     public SchoolClass get(@PathVariable UUID classId) {
         return service.getById(classId);
     }
+
+    @PostMapping("/api/classes/{classId}/teachers/{userId}")
+    public SchoolClass assignTeacher(@PathVariable UUID classId, @PathVariable String userId) {
+        return service.assignTeacher(classId, userId);
+    }
 }

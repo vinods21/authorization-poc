@@ -4,6 +4,7 @@ import com.example.authorizationpoc.auth.CurrentUser;
 import com.example.authorizationpoc.auth.CurrentUserProvider;
 import com.example.authorizationpoc.audit.AuditService;
 import com.example.authorizationpoc.authz.AuthorizationService;
+import com.example.authorizationpoc.authz.AuthzClient;
 import com.example.authorizationpoc.authz.Permission;
 import java.util.List;
 import java.util.UUID;
@@ -15,17 +16,20 @@ public class SchoolClassService {
     private final SchoolClassRepository repository;
     private final CurrentUserProvider currentUserProvider;
     private final AuthorizationService authorizationService;
+    private final AuthzClient authzClient;
     private final AuditService auditService;
 
     public SchoolClassService(
             SchoolClassRepository repository,
             CurrentUserProvider currentUserProvider,
             AuthorizationService authorizationService,
+            AuthzClient authzClient,
             AuditService auditService
     ) {
         this.repository = repository;
         this.currentUserProvider = currentUserProvider;
         this.authorizationService = authorizationService;
+        this.authzClient = authzClient;
         this.auditService = auditService;
     }
 
@@ -55,6 +59,16 @@ public class SchoolClassService {
         SchoolClass schoolClass = repository.findByIdAndTenantId(classId, currentUser.tenantId())
                 .orElseThrow(() -> new IllegalArgumentException("Class not found"));
         authorizationService.check(Permission.CAN_VIEW, "class:" + currentUser.tenantCode() + "/" + schoolClass.code());
+        return schoolClass;
+    }
+
+    public SchoolClass assignTeacher(UUID classId, String teacherUsername) {
+        CurrentUser currentUser = currentUserProvider.getCurrentUser();
+        SchoolClass schoolClass = repository.findByIdAndTenantId(classId, currentUser.tenantId())
+                .orElseThrow(() -> new IllegalArgumentException("Class not found"));
+        authorizationService.check(Permission.CAN_MANAGE, "class:" + currentUser.tenantCode() + "/" + schoolClass.code());
+        authzClient.writeTuple(teacherUsername, "teacher", "class:" + currentUser.tenantCode() + "/" + schoolClass.code());
+        auditService.log(currentUser, "ASSIGN_TEACHER_TO_CLASS", "class", "class:" + currentUser.tenantCode() + "/" + schoolClass.code(), true, "assigned teacher:" + teacherUsername);
         return schoolClass;
     }
 }
