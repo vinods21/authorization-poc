@@ -1,0 +1,108 @@
+{
+  "realm": "saas-platform",
+  "enabled": true,
+  "displayName": "SaaS Platform",
+  "clients": [
+    {
+      "clientId": "react-ui",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"]
+    },
+    {
+      "clientId": "spring-api",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin-a",
+      "enabled": true,
+      "email": "admin-a@school-a.local",
+      "firstName": "Admin",
+      "lastName": "A",
+      "attributes": {
+        "tenant_id": ["11111111-1111-1111-1111-111111111111"],
+        "tenant_code": ["school-a"],
+        "app_user_id": ["aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa1"],
+        "role": ["admin"]
+      },
+      "credentials": [
+        { "type": "password", "value": "password", "temporary": false }
+      ]
+    },
+    {
+      "username": "teacher-a",
+      "enabled": true,
+      "email": "teacher-a@school-a.local",
+      "firstName": "Teacher",
+      "lastName": "A",
+      "attributes": {
+        "tenant_id": ["11111111-1111-1111-1111-111111111111"],
+        "tenant_code": ["school-a"],
+        "app_user_id": ["aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2"],
+        "role": ["teacher"]
+      },
+      "credentials": [
+        { "type": "password", "value": "password", "temporary": false }
+      ]
+    },
+    {
+      "username": "student-a",
+      "enabled": true,
+      "email": "student-a@school-a.local",
+      "firstName": "Student",
+      "lastName": "A",
+      "attributes": {
+        "tenant_id": ["11111111-1111-1111-1111-111111111111"],
+        "tenant_code": ["school-a"],
+        "app_user_id": ["aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa3"],
+        "role": ["student"]
+      },
+      "credentials": [
+        { "type": "password", "value": "password", "temporary": false }
+      ]
+    },
+    {
+      "username": "parent-a",
+      "enabled": true,
+      "email": "parent-a@school-a.local",
+      "firstName": "Parent",
+      "lastName": "A",
+      "attributes": {
+        "tenant_id": ["11111111-1111-1111-1111-111111111111"],
+        "tenant_code": ["school-a"],
+        "app_user_id": ["aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa4"],
+        "role": ["parent"]
+      },
+      "credentials": [
+        { "type": "password", "value": "password", "temporary": false }
+      ]
+    },
+    {
+      "username": "teacher-b",
+      "enabled": true,
+      "email": "teacher-b@school-b.local",
+      "firstName": "Teacher",
+      "lastName": "B",
+      "attributes": {
+        "tenant_id": ["22222222-2222-2222-2222-222222222222"],
+        "tenant_code": ["school-b"],
+        "app_user_id": ["bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb5"],
+        "role": ["teacher"]
+      },
+      "credentials": [
+        { "type": "password", "value": "password", "temporary": false }
+      ]
+    }
+  ],
+  "clientScopes": [],
+  "roles": {
+    "realm": []
+  }
+}
