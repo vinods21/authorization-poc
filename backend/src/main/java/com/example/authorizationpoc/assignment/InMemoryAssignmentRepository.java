@@ -4,9 +4,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Profile("!docker")
 public class InMemoryAssignmentRepository implements AssignmentRepository {
 
     private final Map<UUID, Assignment> data = new ConcurrentHashMap<>();

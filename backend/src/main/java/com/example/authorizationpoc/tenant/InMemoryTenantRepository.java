@@ -3,9 +3,11 @@ package com.example.authorizationpoc.tenant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Profile("!docker")
 public class InMemoryTenantRepository implements TenantRepository {
 
     private static final Map<String, Tenant> TENANTS = Map.of(
