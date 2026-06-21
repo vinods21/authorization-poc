@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
-function useMockSession() {
+function useSession() {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState('signed-out');
@@ -18,8 +18,15 @@ function useMockSession() {
     }
   }, []);
 
+  const saveSession = (session) => {
+    localStorage.setItem('authorization-poc-session', JSON.stringify(session));
+    setToken(session.token);
+    setUser(session.user);
+    setStatus('signed-in');
+  };
+
   const login = () => {
-    const session = {
+    saveSession({
       token: 'dev-token',
       user: {
         userId: 'teacher-a',
@@ -32,11 +39,7 @@ function useMockSession() {
           canViewReports: true
         }
       }
-    };
-    localStorage.setItem('authorization-poc-session', JSON.stringify(session));
-    setToken(session.token);
-    setUser(session.user);
-    setStatus('signed-in');
+    });
   };
 
   const logout = () => {
@@ -46,28 +49,119 @@ function useMockSession() {
     setStatus('signed-out');
   };
 
-  return { token, user, status, login, logout };
+  return { token, user, status, login, logout, saveSession };
+}
+
+async function apiGet(path, token) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`${response.status}: ${errorText || response.statusText}`);
+  }
+  return response.json();
 }
 
 function App() {
-  const { token, user, status, login, logout } = useMockSession();
-  const [selectedClass, setSelectedClass] = useState(null);
+  const { token, user, status, login, logout, saveSession } = useSession();
   const [classes, setClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [studentProfile, setStudentProfile] = useState(null);
+  const [report, setReport] = useState(null);
   const [message, setMessage] = useState('Ready');
-
-  useEffect(() => {
-    if (status === 'signed-in') {
-      setClasses([
-        { id: '33333333-3333-3333-3333-333333333331', code: 'class-10a', name: 'Class 10A', section: 'A' },
-        { id: '33333333-3333-3333-3333-333333333332', code: 'class-10b', name: 'Class 10B', section: 'B' }
-      ]);
-    } else {
-      setClasses([]);
-      setSelectedClass(null);
-    }
-  }, [status]);
+  const [loading, setLoading] = useState(false);
 
   const features = useMemo(() => user?.features || {}, [user]);
+
+  useEffect(() => {
+    if (!token) {
+      setClasses([]);
+      setSelectedClass(null);
+      setStudentProfile(null);
+      setReport(null);
+      return;
+    }
+
+    let mounted = true;
+    setLoading(true);
+    setMessage('Loading backend data');
+
+    Promise.all([
+      apiGet('/api/me', token),
+      apiGet('/api/classes', token)
+    ])
+      .then(([me, classList]) => {
+        if (!mounted) return;
+        setUserFromMe(me);
+        setClasses(classList);
+        setSelectedClass(classList[0] || null);
+        setMessage('Loaded backend data');
+      })
+      .catch((error) => {
+        if (!mounted) return;
+        setMessage(error.message);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [token]);
+
+  useEffect(() => {
+    if (!token || !selectedClass) return;
+    let mounted = true;
+    setLoading(true);
+    apiGet(`/api/classes/${selectedClass.id}`, token)
+      .then((classDetails) => {
+        if (!mounted) return;
+        setSelectedClass(classDetails);
+        setMessage('Loaded class details');
+      })
+      .catch((error) => {
+        if (mounted) setMessage(error.message);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [token, selectedClass?.id]);
+
+  function setUserFromMe(me) {
+    saveSession({
+      token,
+      user: {
+        userId: me.userId,
+        tenantCode: me.tenantCode,
+        displayName: me.displayName,
+        roles: me.roles,
+        features: me.features
+      }
+    });
+  }
+
+  const loadStudent = () => {
+    if (!token) return;
+    setLoading(true);
+    apiGet('/api/students/44444444-4444-4444-4444-444444444441', token)
+      .then(setStudentProfile)
+      .catch((error) => setMessage(error.message))
+      .finally(() => setLoading(false));
+  };
+
+  const loadReport = () => {
+    if (!token) return;
+    setLoading(true);
+    apiGet('/api/reports/66666666-6666-6666-6666-666666666661', token)
+      .then(setReport)
+      .catch((error) => setMessage(error.message))
+      .finally(() => setLoading(false));
+  };
 
   return (
     <div style={styles.shell}>
@@ -152,9 +246,15 @@ function App() {
         <section style={styles.panel}>
           <h2 style={styles.h2}>Student and Report</h2>
           <div style={styles.form}>
-            <button style={styles.button}>Open Student Profile</button>
-            <button style={styles.button}>Open Report</button>
+            <button style={styles.button} onClick={loadStudent}>Open Student Profile</button>
+            <button style={styles.button} onClick={loadReport}>Open Report</button>
           </div>
+          {studentProfile ? (
+            <p style={styles.subtle}>Student loaded: {studentProfile.code}</p>
+          ) : null}
+          {report ? (
+            <p style={styles.subtle}>Report loaded: {report.code}</p>
+          ) : null}
         </section>
 
         <section style={styles.panelWide}>
@@ -163,6 +263,7 @@ function App() {
           <p style={styles.status}>{message}</p>
           <p style={styles.subtle}>API base: {API_BASE_URL}</p>
           <p style={styles.subtle}>Token: {token ? 'present' : 'missing'}</p>
+          <p style={styles.subtle}>Loading: {loading ? 'yes' : 'no'}</p>
         </section>
       </main>
     </div>
