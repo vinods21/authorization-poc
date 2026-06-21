@@ -1,8 +1,6 @@
 package com.example.authorizationpoc.authz;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.example.authorizationpoc.audit.AuditService;
 import com.example.authorizationpoc.audit.InMemoryAuditLogRepository;
@@ -13,42 +11,58 @@ import org.junit.jupiter.api.Test;
 
 class AuthorizationServiceTest {
 
+    private static final CurrentUser USER = new CurrentUser(
+            UUID.fromString("00000000-0000-0000-0000-000000000002"),
+            "teacher-a",
+            "teacher-a",
+            "teacher-a@school-a.local",
+            UUID.fromString("11111111-1111-1111-1111-111111111111"),
+            "school-a",
+            "teacher"
+    );
+
+    private static final CurrentUserProvider CURRENT_USER_PROVIDER = () -> USER;
+
     @Test
     void deniedCheckThrowsForbidden() {
-        CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
-        when(currentUserProvider.getCurrentUser()).thenReturn(new CurrentUser(
-                UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2"),
-                "teacher-a",
-                "teacher-a",
-                "teacher-a@school-a.local",
-                UUID.fromString("11111111-1111-1111-1111-111111111111"),
-                "school-a",
-                "teacher"
-        ));
-        AuthzClient authzClient = mock(AuthzClient.class);
-        when(authzClient.isAllowed("teacher-a", "can_view", "class:school-a/class-10a")).thenReturn(false);
+        AuthzClient authzClient = new AuthzClient() {
+            @Override
+            public boolean isAllowed(String user, String relation, String object) {
+                return false;
+            }
 
-        AuthorizationService service = new AuthorizationService(authzClient, currentUserProvider, new AuditService(new InMemoryAuditLogRepository()));
+            @Override
+            public void check(String user, String relation, String object) {
+            }
+
+            @Override
+            public void writeTuple(String user, String relation, String object) {
+            }
+        };
+
+        AuthorizationService service = new AuthorizationService(authzClient, CURRENT_USER_PROVIDER, new AuditService(new InMemoryAuditLogRepository()));
 
         assertThrows(AccessDeniedAuthorizationException.class, () -> service.check(Permission.CAN_VIEW, "class:school-a/class-10a"));
     }
 
     @Test
     void allowedCheckReturnsTrue() {
-        CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
-        when(currentUserProvider.getCurrentUser()).thenReturn(new CurrentUser(
-                UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa2"),
-                "teacher-a",
-                "teacher-a",
-                "teacher-a@school-a.local",
-                UUID.fromString("11111111-1111-1111-1111-111111111111"),
-                "school-a",
-                "teacher"
-        ));
-        AuthzClient authzClient = mock(AuthzClient.class);
-        when(authzClient.isAllowed("teacher-a", "can_view", "class:school-a/class-10a")).thenReturn(true);
+        AuthzClient authzClient = new AuthzClient() {
+            @Override
+            public boolean isAllowed(String user, String relation, String object) {
+                return true;
+            }
 
-        AuthorizationService service = new AuthorizationService(authzClient, currentUserProvider, new AuditService(new InMemoryAuditLogRepository()));
+            @Override
+            public void check(String user, String relation, String object) {
+            }
+
+            @Override
+            public void writeTuple(String user, String relation, String object) {
+            }
+        };
+
+        AuthorizationService service = new AuthorizationService(authzClient, CURRENT_USER_PROVIDER, new AuditService(new InMemoryAuditLogRepository()));
 
         service.check(Permission.CAN_VIEW, "class:school-a/class-10a");
     }
