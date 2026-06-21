@@ -34,6 +34,19 @@ services:
     volumes:
       - openfga_db_data:/var/lib/postgresql/data
 
+  openfga-migrate:
+    image: openfga/openfga:latest
+    command:
+      [
+        "migrate",
+        "--datastore-engine",
+        "postgres",
+        "--datastore-uri",
+        "postgres://openfga:openfga@openfga-db:5432/openfga_db?sslmode=disable"
+      ]
+    depends_on:
+      - openfga-db
+
   keycloak:
     image: quay.io/keycloak/keycloak:25.0.6
     command: ["start-dev", "--import-realm"]
@@ -63,6 +76,7 @@ services:
     ports:
       - "8082:8080"
     depends_on:
+      - openfga-migrate
       - openfga-db
 
   backend:

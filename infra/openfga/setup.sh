@@ -3,7 +3,7 @@ set -eu
 
 API_URL="${OPENFGA_API_URL:-http://localhost:8082}"
 STORE_NAME="${OPENFGA_STORE_NAME:-school-saas-store}"
-MODEL_FILE="${OPENFGA_MODEL_FILE:-infra/openfga/model.fga}"
+MODEL_JSON_FILE="${OPENFGA_MODEL_JSON_FILE:-infra/openfga/model.json}"
 TUPLES_FILE="${OPENFGA_TUPLES_FILE:-infra/openfga/tuples.json}"
 
 echo "Using OpenFGA API: ${API_URL}"
@@ -27,15 +27,18 @@ if [ -z "${STORE_ID}" ]; then
 fi
 
 echo "Store id: ${STORE_ID}"
+echo "Uploading authorization model from ${MODEL_JSON_FILE}"
 
-MODEL_TEXT="$(cat "${MODEL_FILE}")"
-MODEL_ID="$(curl -fsS -X POST "${API_URL}/stores/${STORE_ID}/authorization-models" \
+if ! MODEL_RESPONSE="$(curl -fsS -X POST "${API_URL}/stores/${STORE_ID}/authorization-models" \
   -H 'Content-Type: application/json' \
-  -d "{\"type_system\":\"${MODEL_TEXT}\"}" \
-  | grep -o '"authorization_model_id":"[^"]*"' \
-  | head -1 \
-  | cut -d'"' -f4)"
+  --data-binary @"${MODEL_JSON_FILE}")"; then
+  echo "OpenFGA model upload failed."
+  echo "The OpenFGA datastore is running and the store exists, but the JSON model still needs validation."
+  echo "Inspect infra/openfga/model.json and the OpenFGA logs, then retry this script."
+  exit 1
+fi
 
+MODEL_ID="$(printf '%s' "${MODEL_RESPONSE}" | grep -o '"authorization_model_id":"[^"]*"' | head -1 | cut -d'"' -f4 || true)"
 echo "Authorization model id: ${MODEL_ID}"
 
 TUPLES_JSON="$(cat "${TUPLES_FILE}")"
