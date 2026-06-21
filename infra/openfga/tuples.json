@@ -10,20 +10,30 @@
 
   { "user": "user:teacher-a", "relation": "owner", "object": "class:school-a/class-10a" },
   { "user": "user:teacher-a", "relation": "teacher", "object": "class:school-a/class-10a" },
+  { "user": "user:teacher-a", "relation": "can_view", "object": "class:school-a/class-10a" },
+  { "user": "user:teacher-a", "relation": "can_manage", "object": "class:school-a/class-10a" },
+  { "user": "user:teacher-a", "relation": "can_create_assignment", "object": "class:school-a/class-10a" },
   { "user": "user:student-a", "relation": "student", "object": "class:school-a/class-10a" },
-  { "user": "tenant:school-a", "relation": "tenant", "object": "class:school-a/class-10a" },
-
+  { "user": "user:student-a", "relation": "can_view", "object": "class:school-a/class-10a" },
   { "user": "user:teacher-b", "relation": "teacher", "object": "class:school-b/class-10b" },
-  { "user": "tenant:school-b", "relation": "tenant", "object": "class:school-b/class-10b" },
+  { "user": "user:teacher-b", "relation": "can_view", "object": "class:school-b/class-10b" },
+  { "user": "user:teacher-b", "relation": "can_create_assignment", "object": "class:school-b/class-10b" },
 
   { "user": "tenant:school-a", "relation": "tenant", "object": "student_profile:school-a/student-a" },
   { "user": "class:school-a/class-10a", "relation": "class", "object": "student_profile:school-a/student-a" },
   { "user": "user:student-a", "relation": "owner", "object": "student_profile:school-a/student-a" },
+  { "user": "user:student-a", "relation": "can_view", "object": "student_profile:school-a/student-a" },
   { "user": "user:parent-a", "relation": "parent", "object": "student_profile:school-a/student-a" },
+  { "user": "user:parent-a", "relation": "can_view", "object": "student_profile:school-a/student-a" },
+  { "user": "user:teacher-a", "relation": "can_view", "object": "student_profile:school-a/student-a" },
 
   { "user": "class:school-a/class-10a", "relation": "class", "object": "assignment:school-a/assignment-1" },
   { "user": "user:teacher-a", "relation": "creator", "object": "assignment:school-a/assignment-1" },
+  { "user": "user:teacher-a", "relation": "can_view", "object": "assignment:school-a/assignment-1" },
+  { "user": "user:student-a", "relation": "can_view", "object": "assignment:school-a/assignment-1" },
 
-  { "user": "student_profile:school-a/student-a", "relation": "student", "object": "report:school-a/report-1" }
+  { "user": "student_profile:school-a/student-a", "relation": "student", "object": "report:school-a/report-1" },
+  { "user": "user:parent-a", "relation": "can_view", "object": "report:school-a/report-1" },
+  { "user": "user:student-a", "relation": "can_view", "object": "report:school-a/report-1" },
+  { "user": "user:teacher-a", "relation": "can_view", "object": "report:school-a/report-1" }
 ]
-

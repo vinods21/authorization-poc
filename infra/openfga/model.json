@@ -1,231 +1,97 @@
 {
   "schema_version": "1.1",
   "type_definitions": [
-    {
-      "type": "user"
-    },
+    { "type": "user" },
     {
       "type": "tenant",
       "relations": {
-        "admin": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "member": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "teacher": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "student": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "can_manage": {
-          "union": {
-            "child": [
-              { "computedUserset": { "relation": "admin" } }
-            ]
-          }
-        },
-        "can_view": {
-          "union": {
-            "child": [
-              { "computedUserset": { "relation": "admin" } },
-              { "computedUserset": { "relation": "member" } }
-            ]
-          }
+        "admin": { "this": {} },
+        "member": { "this": {} },
+        "teacher": { "this": {} },
+        "student": { "this": {} }
+      },
+      "metadata": {
+        "relations": {
+          "admin": { "directly_related_user_types": [{ "type": "user" }] },
+          "member": { "directly_related_user_types": [{ "type": "user" }] },
+          "teacher": { "directly_related_user_types": [{ "type": "user" }] },
+          "student": { "directly_related_user_types": [{ "type": "user" }] }
         }
       }
     },
     {
       "type": "class",
       "relations": {
-        "tenant": {
-          "directly_related_user_types": [
-            { "type": "tenant" }
-          ]
-        },
-        "owner": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "teacher": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "student": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "can_view": {
-          "union": {
-            "child": [
-              { "computedUserset": { "relation": "owner" } },
-              { "computedUserset": { "relation": "teacher" } },
-              { "computedUserset": { "relation": "student" } },
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "tenant" },
-                  "computedUserset": { "relation": "admin" }
-                }
-              }
-            ]
-          }
-        },
-        "can_manage": {
-          "union": {
-            "child": [
-              { "computedUserset": { "relation": "owner" } },
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "tenant" },
-                  "computedUserset": { "relation": "admin" }
-                }
-              }
-            ]
-          }
-        },
-        "can_create_assignment": {
-          "union": {
-            "child": [
-              { "computedUserset": { "relation": "teacher" } },
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "tenant" },
-                  "computedUserset": { "relation": "admin" }
-                }
-              }
-            ]
-          }
+        "tenant": { "this": {} },
+        "owner": { "this": {} },
+        "teacher": { "this": {} },
+        "student": { "this": {} },
+        "can_view": { "this": {} },
+        "can_manage": { "this": {} },
+        "can_create_assignment": { "this": {} }
+      },
+      "metadata": {
+        "relations": {
+          "tenant": { "directly_related_user_types": [{ "type": "tenant" }] },
+          "owner": { "directly_related_user_types": [{ "type": "user" }] },
+          "teacher": { "directly_related_user_types": [{ "type": "user" }] },
+          "student": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_view": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_manage": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_create_assignment": { "directly_related_user_types": [{ "type": "user" }] }
         }
       }
     },
     {
       "type": "assignment",
       "relations": {
-        "class": {
-          "directly_related_user_types": [
-            { "type": "class" }
-          ]
-        },
-        "creator": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "can_view": {
-          "tupleToUserset": {
-            "tupleset": { "relation": "class" },
-            "computedUserset": { "relation": "can_view" }
-          }
-        },
-        "can_update": {
-          "union": {
-            "child": [
-              { "computedUserset": { "relation": "creator" } },
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "class" },
-                  "computedUserset": { "relation": "can_manage" }
-                }
-              }
-            ]
-          }
-        },
-        "can_delete": {
-          "tupleToUserset": {
-            "tupleset": { "relation": "class" },
-            "computedUserset": { "relation": "can_manage" }
-          }
+        "class": { "this": {} },
+        "creator": { "this": {} },
+        "can_view": { "this": {} },
+        "can_update": { "this": {} },
+        "can_delete": { "this": {} }
+      },
+      "metadata": {
+        "relations": {
+          "class": { "directly_related_user_types": [{ "type": "class" }] },
+          "creator": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_view": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_update": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_delete": { "directly_related_user_types": [{ "type": "user" }] }
         }
       }
     },
     {
       "type": "student_profile",
       "relations": {
-        "tenant": {
-          "directly_related_user_types": [
-            { "type": "tenant" }
-          ]
-        },
-        "class": {
-          "directly_related_user_types": [
-            { "type": "class" }
-          ]
-        },
-        "owner": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "parent": {
-          "directly_related_user_types": [
-            { "type": "user" }
-          ]
-        },
-        "can_view": {
-          "union": {
-            "child": [
-              { "computedUserset": { "relation": "owner" } },
-              { "computedUserset": { "relation": "parent" } },
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "class" },
-                  "computedUserset": { "relation": "teacher" }
-                }
-              },
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "tenant" },
-                  "computedUserset": { "relation": "admin" }
-                }
-              }
-            ]
-          }
-        },
-        "can_update": {
-          "union": {
-            "child": [
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "class" },
-                  "computedUserset": { "relation": "teacher" }
-                }
-              },
-              {
-                "tupleToUserset": {
-                  "tupleset": { "relation": "tenant" },
-                  "computedUserset": { "relation": "admin" }
-                }
-              }
-            ]
-          }
+        "tenant": { "this": {} },
+        "class": { "this": {} },
+        "owner": { "this": {} },
+        "parent": { "this": {} },
+        "can_view": { "this": {} },
+        "can_update": { "this": {} }
+      },
+      "metadata": {
+        "relations": {
+          "tenant": { "directly_related_user_types": [{ "type": "tenant" }] },
+          "class": { "directly_related_user_types": [{ "type": "class" }] },
+          "owner": { "directly_related_user_types": [{ "type": "user" }] },
+          "parent": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_view": { "directly_related_user_types": [{ "type": "user" }] },
+          "can_update": { "directly_related_user_types": [{ "type": "user" }] }
         }
       }
     },
     {
       "type": "report",
       "relations": {
-        "student": {
-          "directly_related_user_types": [
-            { "type": "student_profile" }
-          ]
-        },
-        "can_view": {
-          "tupleToUserset": {
-            "tupleset": { "relation": "student" },
-            "computedUserset": { "relation": "can_view" }
-          }
+        "student": { "this": {} },
+        "can_view": { "this": {} }
+      },
+      "metadata": {
+        "relations": {
+          "student": { "directly_related_user_types": [{ "type": "student_profile" }] },
+          "can_view": { "directly_related_user_types": [{ "type": "user" }] }
         }
       }
     }

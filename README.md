@@ -185,7 +185,7 @@ It uses:
 
 - `tenant` as a first-class object
 - `class`, `student_profile`, `assignment`, and `report` as tenant-scoped objects
-- relations that capture tenant admin, teachers, ownership, and parent visibility
+- direct relations that capture tenant admin, teachers, ownership, and parent visibility
 
 ## OpenFGA Tuples
 
@@ -199,6 +199,8 @@ They model:
 - parent access to a student profile
 - assignment ownership
 - report linkage to a student profile
+
+For this PoC, the OpenFGA object relations are intentionally kept direct so the bootstrap path is deterministic and easy to run locally.
 
 ## OpenFGA Bootstrap
 
