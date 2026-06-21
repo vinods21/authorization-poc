@@ -200,6 +200,18 @@ They model:
 - assignment ownership
 - report linkage to a student profile
 
+## OpenFGA Bootstrap
+
+Use `infra/openfga/setup.sh` to create the `school-saas-store`, apply the authorization model, and load the seed tuples.
+
+Example:
+
+```bash
+OPENFGA_API_URL=http://localhost:8082 sh infra/openfga/setup.sh
+```
+
+The script expects the OpenFGA API to be reachable and reads the model and tuple files from the repository.
+
 ## Tenant Isolation
 
 Tenant isolation is enforced in two places:
